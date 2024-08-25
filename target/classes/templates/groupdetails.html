@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Regsiter User</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<div th:include="fragments/header :: headerFragment"></div>
+
+<div class="modal fade" id="updateGroupModal" tabindex="-1" aria-labelledby="updateGroupModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupModalLabel">Update Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/groups/{id}/update(id=${group.id})}" method="post" th:object="${addGroup}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}"
+                               placeholder="Enter name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteGroupModal" tabindex="-1" aria-labelledby="deleteGroupModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGroupModalLabel">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/groups/{id}/delete(id=${group.id})}" method="post">
+                <div class="modal-body">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete Group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <h2>Group Information</h2>
+            </div>
+            <div class="col-auto ms-auto">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateGroupModal">
+                    Update
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteGroupModal">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    <table class="table table-borderless">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Created date</th>
+            <th scope="col">Created by</th>
+            <th scope="col">Last modified date</th>
+            <th scope="col">Last modified by</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">1</th>
+            <td th:text="${group.name}">Name</td>
+            <td th:text="${group.createdDate}">Created date</td>
+            <td th:text="${group.createdBy}">Created by</td>
+            <td th:text="${group.lastModifiedDate}">Last modified date</td>
+            <td th:text="${group.lastModifiedBy}">Last modified by</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>Roles</h2>
+                <form th:action="@{/groups/{id}/role/add(id=${group.id})}" method="post">
+                    <div class="input-group mb-3">
+                        <select class="form-select" name="roleId" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.description}">Role</option>
+                        </select>
+                        <button class="btn btn-primary" type="submit">Add Role</button>
+                    </div>
+                </form>
+                <table class="table table-striped table-sm">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Added At</th>
+                        <th scope="col">Added By</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="role, iterStat : ${group.roles}">
+                        <th scope="row" th:text="${iterStat.index + 1}">1</th>
+                        <td th:text="${role.code}">Role</td>
+                        <td th:text="${role.description}">Description</td>
+                        <td th:text="${role.addedAt}">Added At</td>
+                        <td th:text="${role.addedBy}">Added By</td>
+                        <td>
+                            <form th:action="@{/groups/{id}/role/{roleId}/delete(id=${group.id}, roleId=${role.id})}" method="post" style="display:inline;">
+                                <button class="btn btn-danger" type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+</html>

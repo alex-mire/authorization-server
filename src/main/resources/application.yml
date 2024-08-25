@@ -9,10 +9,21 @@ server:
 spring:
   application:
     name: authorization-server
+  cloud:
+    config:
+      import-check:
+        enabled:
+          false
   datasource:
     username: user
     password: password
-    url: jdbc:postgresql://localhost:5432/upb
+    url: jdbc:postgresql://localhost:5432/authorization-service-db
     hikari:
       connection-timeout: 2000 #ms
       maximum-pool-size: 5
+as:
+  realm:
+    username: "admin"
+    password: "password"
+    name: "realm"
+

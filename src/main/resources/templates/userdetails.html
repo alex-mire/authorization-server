@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Regsiter User</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <div class="col-md-3 mb-2 mb-md-0">
+            <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"/>
+                </svg>
+            </a>
+        </div>
+
+        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+            <li><a th:href="@{/home}" class="nav-link px-2 ">Home</a></li>
+            <li><a th:href="@{/users}" class="nav-link px-2 link-secondary">Users</a></li>
+            <li><a th:href="@{/clients}" class="nav-link px-2">Clients</a></li>
+            <li><a th:href="@{/roles}" class="nav-link px-2">Roles</a></li>
+            <li><a th:href="@{/groups}" class="nav-link px-2">Groups</a></li>
+        </ul>
+
+        <div class="col-md-3 text-end">
+            <a th:href="@{/logout}" class="btn btn-primary">Log out</a>
+        </div>
+    </header>
+</div>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/users/{id}/update(id=${user.id})}" method="post" th:object="${updateUser}">
+                <div class="modal-body">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isAccountNonExpired"
+                               th:field="*{accountNonExpired}">
+                        <label class="form-check-label" for="isAccountNonExpired">Account Non Expired</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isAccountNonLocked"
+                               th:field="*{accountNonLocked}">
+                        <label class="form-check-label" for="isAccountNonLocked">Account Non Locked</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isCredentialsNonExpired"
+                               th:field="*{credentialsNonExpired}">
+                        <label class="form-check-label" for="isCredentialsNonExpired">Credentials Non Expired</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="isEnabled" th:field="*{enabled}">
+                        <label class="form-check-label" for="isEnabled">Enabled</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/users/{id}/delete(id=${user.id})}" method="post">
+                <div class="modal-body">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Delete User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <h2>User Information</h2>
+            </div>
+            <div class="col-auto ms-auto">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userModal">
+                    Update
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    <table class="table table-borderless">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Password</th>
+            <th scope="col">Account Non Expired</th>
+            <th scope="col">Account Non Locked</th>
+            <th scope="col">Credentials Non Expired</th>
+            <th scope="col">Enabled</th>
+            <th scope="col">Created date</th>
+            <th scope="col">Created by</th>
+            <th scope="col">Last modified date</th>
+            <th scope="col">Last modified by</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">1</th>
+            <td th:text="${user.username}">Username</td>
+            <td th:text="${user.password}">Password</td>
+            <td th:text="${user.isAccountNonExpired ? 'Yes' : 'No'}">Account Non Expired</td>
+            <td th:text="${user.isAccountNonLocked ? 'Yes' : 'No'}">Account Non Locked</td>
+            <td th:text="${user.isCredentialsNonExpired ? 'Yes' : 'No'}">Credentials Non Expired</td>
+            <td th:text="${user.isEnabled ? 'Yes' : 'No'}">Enabled</td>
+            <td th:text="${user.createdDate}">Created date</td>
+            <td th:text="${user.createdBy}">Created by</td>
+            <td th:text="${user.lastModifiedDate}">Last modified date</td>
+            <td th:text="${user.lastModifiedBy}">Last modified by</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h2>User Group Information</h2>
+                <form th:action="@{/users/{id}/group/add(id=${user.id})}" method="post">
+                    <div class="input-group mb-3">
+                        <select class="form-select" name="groupId" required>
+                            <option value="" disabled selected>Select Group</option>
+                            <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}">Group</option>
+                        </select>
+                        <button class="btn btn-primary" type="submit">Add Group</button>
+                    </div>
+                </form>
+                <table class="table table-striped table-sm">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Group Name</th>
+                        <th scope="col">Added At</th>
+                        <th scope="col">Added By</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="group, iterStat : ${user.groups}">
+                        <th scope="row" th:text="${iterStat.index + 1}">1</th>
+                        <td th:text="${group.name}">Group Name</td>
+                        <td th:text="${group.addedAt}">Added At</td>
+                        <td th:text="${group.addedBy}">Added By</td>
+                        <td>
+                            <form th:action="@{/users/{id}/group/{groupId}/delete(id=${user.id}, groupId=${group.id})}" method="post" style="display:inline;">
+                                <button class="btn btn-danger" type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col">
+                <h2>Roles</h2>
+                <form th:action="@{/users/{id}/role/add(id=${user.id})}" method="post">
+                    <div class="input-group mb-3">
+                        <select class="form-select" name="roleId" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.description}">Role</option>
+                        </select>
+                        <button class="btn btn-primary" type="submit">Add Role</button>
+                    </div>
+                </form>
+                <table class="table table-striped table-sm">
+                    <thead class="table-light">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Added At</th>
+                        <th scope="col">Added By</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="role, iterStat : ${user.roles}">
+                        <th scope="row" th:text="${iterStat.index + 1}">1</th>
+                        <td th:text="${role.description}">Role</td>
+                        <td th:text="${role.addedAt}">Added At</td>
+                        <td th:text="${role.addedBy}">Added By</td>
+                        <td>
+                            <form th:action="@{/users/{id}/role/{roleId}/delete(id=${user.id}, roleId=${role.id})}" method="post" style="display:inline;">
+                                <button class="btn btn-danger" type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
+</body>
+</html>
