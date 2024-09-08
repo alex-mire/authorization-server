@@ -26,18 +26,20 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">Session ID</th>
-            <th scope="col">Last Request</th>
+            <th scope="col">Creation Time</th>
+            <th scope="col">Last Acces Time</th>
             <th scope="col">Principal Name</th>
-            <th scope="col">Expired</th>
+            <th scope="col">Expiry Time</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="se, iterStat : ${sessions}">
             <th scope="row" th:text="${iterStat.index + 1}">1</th>
             <td th:text="${se.sessionId}">Session ID</td>
-            <td th:text="${se.lastRequest}">Last Request</td>
-            <td th:text="${se.principal.username}">Principal Name</td>
-            <td th:text="${se.expired}">Expired</td>
+            <td th:text="${se.creationTime}">Creation Time</td>
+            <td th:text="${se.lastAccessTime}">Last Access Time</td>
+            <td th:text="${se.principalName}">Principal Name</td>
+            <td th:text="${se.expiryTime}">Expiry Time</td>
         </tr>
         </tbody>
     </table>

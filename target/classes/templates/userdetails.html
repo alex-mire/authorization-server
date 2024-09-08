@@ -9,29 +9,8 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
-<div class="container">
-    <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-        <div class="col-md-3 mb-2 mb-md-0">
-            <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
-                <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap">
-                    <use xlink:href="#bootstrap"/>
-                </svg>
-            </a>
-        </div>
 
-        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-            <li><a th:href="@{/home}" class="nav-link px-2 ">Home</a></li>
-            <li><a th:href="@{/users}" class="nav-link px-2 link-secondary">Users</a></li>
-            <li><a th:href="@{/clients}" class="nav-link px-2">Clients</a></li>
-            <li><a th:href="@{/roles}" class="nav-link px-2">Roles</a></li>
-            <li><a th:href="@{/groups}" class="nav-link px-2">Groups</a></li>
-        </ul>
-
-        <div class="col-md-3 text-end">
-            <a th:href="@{/logout}" class="btn btn-primary">Log out</a>
-        </div>
-    </header>
-</div>
+<div th:include="fragments/header :: headerFragment"></div>
 
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -104,40 +83,41 @@
                     Delete
                 </button>
             </div>
+            <div class="container">
+                <form th:action="@{'/users/' + ${user.id} + '/deassociate'}" th:object="${associateAccountHolder}" method="post">
+                    <div class="input-group mb-3">
+                        <input type="hidden" name="accountHolderId" th:value="${user.accountHolderDto.accountHolderId}" />
+                        <button class="btn btn-primary" type="submit">Deassociate Account Holder</button>
+                    </div>
+                </form>
+            </div>
+
+
+
+
         </div>
     </div>
-    <table class="table table-borderless">
-        <thead class="table-light">
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Username</th>
-            <th scope="col">Password</th>
-            <th scope="col">Account Non Expired</th>
-            <th scope="col">Account Non Locked</th>
-            <th scope="col">Credentials Non Expired</th>
-            <th scope="col">Enabled</th>
-            <th scope="col">Created date</th>
-            <th scope="col">Created by</th>
-            <th scope="col">Last modified date</th>
-            <th scope="col">Last modified by</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <th scope="row">1</th>
-            <td th:text="${user.username}">Username</td>
-            <td th:text="${user.password}">Password</td>
-            <td th:text="${user.isAccountNonExpired ? 'Yes' : 'No'}">Account Non Expired</td>
-            <td th:text="${user.isAccountNonLocked ? 'Yes' : 'No'}">Account Non Locked</td>
-            <td th:text="${user.isCredentialsNonExpired ? 'Yes' : 'No'}">Credentials Non Expired</td>
-            <td th:text="${user.isEnabled ? 'Yes' : 'No'}">Enabled</td>
-            <td th:text="${user.createdDate}">Created date</td>
-            <td th:text="${user.createdBy}">Created by</td>
-            <td th:text="${user.lastModifiedDate}">Last modified date</td>
-            <td th:text="${user.lastModifiedBy}">Last modified by</td>
-        </tr>
-        </tbody>
-    </table>
+    </br>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">User Details</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Username:</strong> <span th:text="${user.username}">Username</span></li>
+                <li class="list-group-item"><strong>Email:</strong> <span th:text="${user.email}">Email</span></li>
+                <li class="list-group-item"><strong>Password:</strong> <span th:text="${user.password}">Password</span></li>
+                <li class="list-group-item"><strong>Account Holder:</strong> <span th:text="${user.accountHolderDto.accountHolder}">Account Holder</span></li>
+                <li class="list-group-item"><strong>Account Non Expired:</strong> <span th:text="${user.isAccountNonExpired ? 'Yes' : 'No'}">Account Non Expired</span></li>
+                <li class="list-group-item"><strong>Account Non Locked:</strong> <span th:text="${user.isAccountNonLocked ? 'Yes' : 'No'}">Account Non Locked</span></li>
+                <li class="list-group-item"><strong>Credentials Non Expired:</strong> <span th:text="${user.isCredentialsNonExpired ? 'Yes' : 'No'}">Credentials Non Expired</span></li>
+                <li class="list-group-item"><strong>Enabled:</strong> <span th:text="${user.isEnabled ? 'Yes' : 'No'}">Enabled</span></li>
+                <li class="list-group-item"><strong>Created date:</strong> <span th:text="${user.createdDate}">Created date</span></li>
+                <li class="list-group-item"><strong>Created by:</strong> <span th:text="${user.createdBy}">Created by</span></li>
+                <li class="list-group-item"><strong>Last modified date:</strong> <span th:text="${user.lastModifiedDate}">Last modified date</span></li>
+                <li class="list-group-item"><strong>Last modified by:</strong> <span th:text="${user.lastModifiedBy}">Last modified by</span></li>
+            </ul>
+        </div>
+    </div>
+    </br>
     <div class="container">
         <div class="row">
             <div class="col">
@@ -213,6 +193,26 @@
                 </table>
             </div>
         </div>
+        <div class="container">
+            <form th:action="@{'/users/' + ${user.id} + '/associate'}" method="post">
+                <div class="input-group mb-3">
+                    <!-- Account Holder Selection Dropdown -->
+                    <select class="form-select" name="accountHolderId" required>
+                        <option value="" disabled selected>Select Account Holder</option>
+                        <!-- Loop through account holders and populate options -->
+                        <option th:each="ac : ${accountHolder}"
+                                th:value="${ac.id}"
+                                th:text="${ac.firstName}">
+                            Account Holder
+                        </option>
+                    </select>
+                    <!-- Submit button to add account holder -->
+                    <button class="btn btn-primary" type="submit">Add Account Holder</button>
+                </div>
+            </form>
+
+        </div>
+
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"

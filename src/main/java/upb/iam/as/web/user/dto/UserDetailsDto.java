@@ -15,7 +15,9 @@ import java.util.*;
 public class UserDetailsDto {
     private UUID id;
     private String username;
+    private String email;
     private String password;
+    private UserAccountHolderDto accountHolderDto;
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;

@@ -1,4 +1,4 @@
-CREATE TABLE authorization_service.group
+CREATE TABLE public.group
 (
     id                         UUID PRIMARY KEY NOT NULL,
     name                       varchar(255) UNIQUE      NOT NULL,

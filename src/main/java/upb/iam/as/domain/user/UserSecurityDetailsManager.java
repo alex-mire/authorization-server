@@ -9,12 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
-import upb.iam.as.domain.group.GroupRepository;
 import upb.iam.as.domain.role.RoleNotFoundException;
 import upb.iam.as.domain.role.RoleRepository;
-import upb.iam.as.domain.user.exception.UserExistsException;
-import upb.iam.as.domain.user.projection.UserSecurityProjection;
-import upb.iam.as.domain.usergroup.UserGroup;
+import upb.iam.as.domain.user.exception.UserBadRequestException;
+import upb.iam.as.domain.useremail.UserEmailRepository;
 import upb.iam.as.domain.usergroup.UserGroupRepository;
 import upb.iam.as.domain.userrole.UserRole;
 import upb.iam.as.domain.userrole.UserRoleRepository;
@@ -33,13 +31,14 @@ public class UserSecurityDetailsManager implements UserDetailsManager {
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
     private final UserGroupRepository userGroupRepository;
+    private final UserEmailRepository userEmailRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void createUser(UserDetails user) {
         UserSecurity userSecurity = (UserSecurity) user;
         if (userRepository.existsByUsername(userSecurity.getUsername())) {
-            throw new UserExistsException("User with " + user.getUsername() + " already exists");
+            throw new UserBadRequestException("User with " + user.getUsername() + " already exists");
         }
         UUID userId = UUID.randomUUID();
         userRepository.save(User.of(userId,
@@ -75,9 +74,10 @@ public class UserSecurityDetailsManager implements UserDetailsManager {
     public void deleteUser(String username) {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
+        userRoleRepository.deleteByUserId(user.id());
+        userGroupRepository.deleteByUserId(user.id());
+        userEmailRepository.deleteByUserId(user.id());
         userRepository.deleteByUsername(username);
-        userGroupRepository.deleteAllByUserId(user.id());
-        userRoleRepository.deleteAllByUserId(user.id());
     }
 
     @Override

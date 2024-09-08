@@ -5,10 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "USER_EMAIL", schema = "AUTHORIZATION_SERVICE")
+@Table(name = "user_email")
 public record UserEmail(
         @Id
         UUID id,
@@ -28,5 +29,5 @@ public record UserEmail(
         String lastModifiedBy,
         @Version
         int version
-        ) {
+        ) implements Serializable {
 }

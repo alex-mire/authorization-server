@@ -2,6 +2,7 @@ package upb.iam.as.web.role;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -30,6 +31,7 @@ public class RoleController {
     private final RoleRepository roleRepository;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String users(Model model) {
         List<RoleDto> roles = roleRepository.findAllRoleMinimalDto();
         model.addAttribute("roles", roles);
@@ -38,11 +40,13 @@ public class RoleController {
         return "roles";
     }
     @GetMapping("/error")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String throwError() {
         throw new RoleBadRequestException("Test error");
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String addRole(@Valid @ModelAttribute("addRole") AddRoleDto addRoleDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "redirect:/roles";
@@ -55,8 +59,9 @@ public class RoleController {
     }
 
     @PostMapping("/{id}/update")
-    public String addRole(@PathVariable UUID id,
-                          @Valid @ModelAttribute UpdateRoleDto updateRoleDto,
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String updateRole(@PathVariable UUID id,
+                          @Valid @ModelAttribute("updateRole") UpdateRoleDto updateRoleDto,
                           BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "redirect:/roles/" + id;
@@ -65,21 +70,16 @@ public class RoleController {
             throw new RoleBadRequestException("Role not found");
         }
         roleRepository.updateRole(id, updateRoleDto.getDescription());
-        return "redirect:/roles/";
+        return "redirect:/roles";
     }
 
     @PostMapping("/{id}/delete")
-    public String addRole(@PathVariable UUID id) {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String deleteRole(@PathVariable UUID id) {
         if (!roleRepository.existsById(id)) {
             throw new RoleBadRequestException("Role not found");
         }
         roleRepository.deleteRoleById(id);
-        return "redirect:/roles";
-    }
-
-    @ExceptionHandler(RoleBadRequestException.class)
-    public String handleRoleBadRequestException(RoleBadRequestException ex, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         return "redirect:/roles";
     }
 

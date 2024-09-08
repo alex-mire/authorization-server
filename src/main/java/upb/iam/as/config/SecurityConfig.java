@@ -10,12 +10,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -26,6 +25,9 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import upb.iam.as.domain.user.User;
+import upb.iam.as.domain.user.UserRepository;
+import upb.iam.as.shared.BadRequestException;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -35,23 +37,21 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain asFilterChain(HttpSecurity http)
+    public SecurityFilterChain authorizationServerFilter(HttpSecurity http)
             throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());
-
         http.exceptionHandling(
                 e -> e.authenticationEntryPoint(
                         new LoginUrlAuthenticationEntryPoint("/login")
                 )
         );
-
         return http.build();
     }
 
@@ -59,12 +59,13 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
-        http.formLogin(Customizer.withDefaults());
+        http
+                .formLogin(Customizer.withDefaults());
         http
                 .exceptionHandling(Customizer.withDefaults())
                 .authorizeHttpRequests(c -> c
-                        .requestMatchers("/as/**")
-                        .hasRole("ADMIN")
+                        .requestMatchers("/email/**")
+                        .permitAll()
                         .anyRequest()
                         .authenticated()
                 )
@@ -74,13 +75,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers("/as/.well_know/**", "/email/**", "/webjars/**", "/images/*", "/css/*", "/h2-console/**");
     }
 
     @Bean
-    public SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
     }
 
     @Bean
@@ -115,10 +116,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
-        return context -> {
-            JwtClaimsSet.Builder claims = context.getClaims();
-            claims.claim("priority", "HIGH");
+    public OAuth2TokenCustomizer<JwtEncodingContext> oAuth2TokenCustomizer(UserRepository userRepository) {
+        return  context -> {
+            var authorities = context.getPrincipal().getAuthorities(); // GrantedAuthority
+            User user = userRepository.findByUsername(context.getPrincipal().getName())
+                    .orElseThrow(() -> new BadRequestException("Something went wrong"));
+            context
+                    .getClaims()
+                    .claim("authorities", authorities.stream().map(GrantedAuthority::getAuthority).toList())
+                    .claim("userId", user.id());
         };
     }
 

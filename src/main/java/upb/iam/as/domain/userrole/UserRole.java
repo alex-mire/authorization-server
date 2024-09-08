@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "user_role", schema = "authorization_service")
+@Table(name = "user_role")
 public record UserRole(
         @Id
         UUID id,

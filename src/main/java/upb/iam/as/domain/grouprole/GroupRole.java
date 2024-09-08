@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "group_role", schema = "authorization_service")
+@Table(name = "group_role")
 public record GroupRole(
         @Id
         UUID id,

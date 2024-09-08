@@ -13,6 +13,7 @@
 
 <!-- Button to open the modal -->
 
+
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -28,9 +29,9 @@
                                placeholder="Enter username" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" th:field="*{password}"
-                               placeholder="Enter password" required>
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}"
+                               placeholder="Enter email" required>
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="isAccountNonExpired"
@@ -77,6 +78,10 @@
 
 <div class="container my-5">
     <div class="container">
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}">Error message here</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <div class="row align-items-center">
             <div class="col-auto">
                 <h2>User Information</h2>

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import upb.iam.as.web.user.dto.AddUserDto;
 import upb.iam.as.domain.user.projection.UserDetailsProjection;
 import upb.iam.as.web.user.dto.UserDto;
+import upb.iam.as.web.user.dto.UserMinimalDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,17 +24,17 @@ public interface UserRepository extends CrudRepository<User, UUID> {
                    u.is_account_non_locked,
                    u.is_credentials_non_expired,
                    u.is_enabled
-            FROM authorization_service.user u
+            FROM public.user u
             WHERE u.username = :username
             """)
-    Optional<AddUserDto> findDtoByUsername(String username);
+    Optional<UserMinimalDto> findDtoByUsername(String username);
 
     @Query("""
             select case when exists(
                     select u.id
-                    from authorization_service.user u
-                    join authorization_service.user_role ur on ur.user_id = u.id
-                    join authorization_service.role r on r.id = ur.role_id
+                    from public.user u
+                    join user_role ur on ur.user_id = u.id
+                    join role r on r.id = ur.role_id
                     where r.code = :code
                 ) then 1 else 0 end;
             """)
@@ -44,6 +45,7 @@ public interface UserRepository extends CrudRepository<User, UUID> {
                        u.id,
                        u.username,
                        u.password,
+                       ue.email,
                        u.is_account_non_expired,
                        u.is_account_non_locked,
                        u.is_credentials_non_expired,
@@ -52,7 +54,8 @@ public interface UserRepository extends CrudRepository<User, UUID> {
                        u.created_by,
                        u.last_modified_date,
                        u.last_modified_by
-                       from authorization_service.user u
+                       from public.user u
+                       left join public.user_email ue on ue.user_id = u.id
                        where u.id = :id
             """)
     Optional<UserDetailsProjection> findUserDetailsDtoById(UUID id);
@@ -66,13 +69,13 @@ public interface UserRepository extends CrudRepository<User, UUID> {
                        u.is_credentials_non_expired,
                        u.is_account_non_locked,
                        u.is_enabled
-                       from authorization_service.user u
+                       from public.user u
             """)
     List<UserDto> findAllUserDtos();
 
     @Modifying
     @Query("""
-             update authorization_service.user
+             update public.user
              set is_account_non_expired     = :isAccountNonExpired,
                  is_credentials_non_expired = :isCredentialsNonExpired,
                  is_account_non_locked      = :isAccountNonLocked,
@@ -87,7 +90,7 @@ public interface UserRepository extends CrudRepository<User, UUID> {
 
     @Modifying
     @Query("""
-             delete from authorization_service.user
+             delete from public.user
              where username = :username
             """)
     void deleteByUsername(String username);
@@ -96,7 +99,7 @@ public interface UserRepository extends CrudRepository<User, UUID> {
 
     @Modifying
     @Query("""
-             update authorization_service.user
+             update public.user
              set password = :newPassword
              where id = :id
             """)

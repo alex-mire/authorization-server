@@ -2,15 +2,19 @@ package upb.iam.as.web.session;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import upb.iam.as.domain.session.SpringSessionRepository;
+import upb.iam.as.web.session.dto.SessionDto;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -19,13 +23,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SessionController {
 
-    private final SessionRegistry sessionRegistry;
+    final SpringSessionRepository springSessionRepository;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String getAuthorizations(Model model) {
-        List<SessionInformation> sessions = sessionRegistry.getAllPrincipals()
+        var sessions = springSessionRepository
+                .findAllSessions()
                 .stream()
-                .flatMap(principal -> sessionRegistry.getAllSessions(principal, true).stream())
+                .map(SessionDto::new)
                 .toList();
         model.addAttribute("sessions", sessions);
         return "sessions";

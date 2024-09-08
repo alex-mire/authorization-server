@@ -10,14 +10,19 @@ import java.util.UUID;
 
 public interface UserGroupRepository extends CrudRepository<UserGroup, UUID> {
     Optional<UserGroup> findByUserIdAndGroupId(UUID userId, UUID groupId);
-    void deleteAllByUserId(UUID userId);
-
     boolean existsByUserIdAndGroupId(UUID id, UUID groupId);
 
     @Modifying
     @Query("""
-           delete from authorization_service.user_group
+           delete from user_group
            where user_id = :id and group_id = :groupId
            """)
     void deleteByUserIdAndGroupId(UUID id, UUID groupId);
+
+    @Modifying
+    @Query("""
+           delete from user_group
+           where user_id = :id
+           """)
+    void deleteByUserId(UUID id);
 }

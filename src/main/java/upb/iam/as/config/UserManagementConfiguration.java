@@ -9,6 +9,7 @@ import upb.iam.as.domain.group.GroupRepository;
 import upb.iam.as.domain.role.RoleRepository;
 import upb.iam.as.domain.user.UserRepository;
 import upb.iam.as.domain.user.UserSecurityDetailsManager;
+import upb.iam.as.domain.useremail.UserEmailRepository;
 import upb.iam.as.domain.usergroup.UserGroupRepository;
 import upb.iam.as.domain.userrole.UserRoleRepository;
 
@@ -16,8 +17,13 @@ import upb.iam.as.domain.userrole.UserRoleRepository;
 public class UserManagementConfiguration {
 
     @Bean
-    public UserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder, UserRepository userRepository, UserRoleRepository userRoleRepository, RoleRepository roleRepository, GroupRepository groupRepository, UserGroupRepository userGroupRepository) {
-        return new UserSecurityDetailsManager(userRepository, userRoleRepository, roleRepository, userGroupRepository, passwordEncoder);
+    public UserDetailsManager userDetailsManager(PasswordEncoder passwordEncoder,
+                                                 UserRepository userRepository,
+                                                 UserRoleRepository userRoleRepository,
+                                                 RoleRepository roleRepository,
+                                                 UserEmailRepository userEmailRepository,
+                                                 UserGroupRepository userGroupRepository) {
+        return new UserSecurityDetailsManager(userRepository, userRoleRepository, roleRepository, userGroupRepository,userEmailRepository, passwordEncoder);
     }
 
     @Bean

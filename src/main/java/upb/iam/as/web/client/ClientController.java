@@ -2,6 +2,7 @@ package upb.iam.as.web.client;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import upb.iam.as.domain.client.CustomJdbcRegisteredClientRepository;
 import upb.iam.as.domain.client.exceptions.ClientBadRequestException;
+import upb.iam.as.domain.role.exceptions.RoleBadRequestException;
+import upb.iam.as.shared.BadRequestException;
 import upb.iam.as.web.client.dto.RegisteredClientDto;
 
 import java.util.List;
@@ -27,13 +30,13 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class ClientController {
-//http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=https://springone.io/authorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
+    //http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=https://springone.io/authorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
     private final JdbcRegisteredClientRepository jdbcRegisteredClientRepository;
     private final CustomJdbcRegisteredClientRepository customJdbcRegisteredClientRepository;
-    private final JdbcOAuth2AuthorizationService jdbcOAuth2AuthorizationService;
     private final PasswordEncoder passwordEncoder;
 
     @ModelAttribute
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void addCommonAttributes(Model model) {
         model.addAttribute("authMethods",
                 List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
@@ -47,6 +50,7 @@ public class ClientController {
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String addClient(@Valid @ModelAttribute("registeredClient") RegisteredClientDto registeredClientDto,
                             BindingResult bindingResult,
                             RedirectAttributes redirectAttributes) {
@@ -58,17 +62,18 @@ public class ClientController {
                 .clientId(registeredClientDto.getClientId())
                 .clientSecret(passwordEncoder.encode(registeredClientDto.getClientSecret()))
                 .clientAuthenticationMethod(registeredClientDto.getClientAuthenticationMethod())
-                .authorizationGrantType(registeredClientDto.getAuthorizationGrantType())
                 .redirectUri(registeredClientDto.getRedirectUri())
-                .scope(registeredClientDto.getScopes())
-                .build();
+                .scope(registeredClientDto.getScopes());
 
-        jdbcRegisteredClientRepository.save(registeredClient);
+        registeredClientDto.getAuthorizationGrantType().forEach(registeredClient::authorizationGrantType);
+
+        jdbcRegisteredClientRepository.save(registeredClient.build());
         redirectAttributes.addFlashAttribute("message", "Client successfully created.");
         return "redirect:/clients";
     }
 
     @PostMapping("/{clientId}/delete")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String addClient(@PathVariable String clientId,
                             RedirectAttributes redirectAttributes) {
         if (jdbcRegisteredClientRepository.findByClientId(clientId) == null) {
@@ -80,6 +85,7 @@ public class ClientController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public String listClients(Model model) {
         var clients = customJdbcRegisteredClientRepository.findAllClientIds()
                 .stream()
@@ -88,6 +94,12 @@ public class ClientController {
         model.addAttribute("clients", clients);
         model.addAttribute("addClient", new RegisteredClientDto());
         return "clients";
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public String handleBadRequestException(BadRequestException ex, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        return "redirect:/groups";
     }
 }
 

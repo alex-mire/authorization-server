@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "role", schema = "authorization_service")
+@Table(name = "role")
 public record Role(
         @Id
         UUID id,

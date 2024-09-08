@@ -16,46 +16,46 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
 
     @Query("""
            select id
-           from authorization_service.role
+           from role
            where code in (:codes)
            """)
     List<UUID> findAllByCodeIn(List<String> codes);
 
     @Query("""
            select r.code
-           from authorization_service.group g
-           join authorization_service.group_role gr on gr.group_id = g.id
-           join authorization_service.role r on r.id = gr.role_id
+           from public.group g
+           join group_role gr on gr.group_id = g.id
+           join role r on r.id = gr.role_id
            where g.id in (:groupId)
            union
            select r.code
-           from authorization_service.role r
+           from role r
            where r.id in (:roleIds)
            """)
     Set<String> findRoleCodesByGroupIdAndRoleIds(List<UUID> groupId, Set<UUID> roleIds);
 
     @Query("""
            select r.code
-           from authorization_service.group g
-           join authorization_service.group_role gr on gr.group_id = g.id
-           join authorization_service.role r on r.id = gr.role_id
+           from public.group g
+           join group_role gr on gr.group_id = g.id
+           join role r on r.id = gr.role_id
            where g.id in (:groupId)
            """)
     Set<String> findRoleCodesByGroupId(List<UUID> groupId);
 
     @Query("""
            select r.code
-           from authorization_service.role r
-           join authorization_service.user_role ur on ur.role_id = r.id
-           join authorization_service.user u on u.id = ur.user_id
+           from role r
+           join user_role ur on ur.role_id = r.id
+           join public.user u on u.id = ur.user_id
            where u.username = :username
            union
            select r.code
-           from authorization_service.role r
-           join authorization_service.group_role gr on gr.role_id = r.id
-           join authorization_service.group g on g.id = gr.group_id
-           join authorization_service.user_group ug on ug.group_id = g.id
-           join authorization_service.user u on u.id = ug.user_id
+           from role r
+           join group_role gr on gr.role_id = r.id
+           join public.group g on g.id = gr.group_id
+           join user_group ug on ug.group_id = g.id
+           join public.user u on u.id = ug.user_id
            where u.username = :username
            """)
     List<String> findRoleCodesByUsername(String username);
@@ -67,9 +67,9 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
            r.description,
            ur.created_date as added_at,
            ur.created_by as added_by
-           from authorization_service.role r
-           join authorization_service.user_role ur on ur.role_id = r.id
-           join authorization_service.user u on u.id = ur.user_id
+           from role r
+           join user_role ur on ur.role_id = r.id
+           join public.user u on u.id = ur.user_id
            where u.id = :id
            union
            select
@@ -78,11 +78,11 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
            r.description,
            ug.created_date as added_at,
            ug.created_by as added_by
-           from authorization_service.role r
-           join authorization_service.group_role gr on gr.role_id = r.id
-           join authorization_service.group g on g.id = gr.group_id
-           join authorization_service.user_group ug on ug.group_id = g.id
-           join authorization_service.user u on u.id = ug.user_id
+           from role r
+           join group_role gr on gr.role_id = r.id
+           join public.group g on g.id = gr.group_id
+           join user_group ug on ug.group_id = g.id
+           join public.user u on u.id = ug.user_id
            where u.id = :id
            """)
     Set<UserRoleDto> findUserRoleDtoByUserId(UUID id);
@@ -95,7 +95,7 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
                   r.created_by,
                   r.last_modified_date,
                   r.last_modified_by
-           from authorization_service.role r
+           from role r
            """)
     List<RoleDto> findAllRoleMinimalDto();
 
@@ -103,7 +103,7 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
 
     @Modifying
     @Query("""
-             update authorization_service.role
+             update role
              set description = :description
              where id = :id
             """)
@@ -111,7 +111,7 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
 
     @Modifying
     @Query("""
-           delete from authorization_service.role
+           delete from role
            where id = :id
            """)
     void deleteRoleById(UUID id);
@@ -122,9 +122,9 @@ public interface RoleRepository extends CrudRepository<Role, UUID> {
                   r.description,
                   r.created_date as added_at,
                   r.created_by as added_by
-           from authorization_service.group g
-           join authorization_service.group_role gr on gr.group_id = g.id
-           join authorization_service.role r on r.id = gr.role_id
+           from public.group g
+           join group_role gr on gr.group_id = g.id
+           join role r on r.id = gr.role_id
            where g.id = :id
            """)
     List<GroupRoleDto> findRolesByGroupId(UUID id);

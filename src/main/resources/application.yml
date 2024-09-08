@@ -6,24 +6,33 @@ server:
     threads:
       max: 50
       min-spare: 5
+  servlet:
+    context-path: /as
+  forward-headers-strategy: framework
 spring:
   application:
-    name: authorization-server
+    name: my_authorization-server
   cloud:
     config:
       import-check:
         enabled:
           false
   datasource:
-    username: user
-    password: password
-    url: jdbc:postgresql://localhost:5432/authorization-service-db
+    username: ${DATA_SOURCE_USERNAME:user}
+    password: ${DATA_SOURCE_PASSWORD:password}
+    url: ${DATA_SOURCE_URL:jdbc:postgresql://localhost:5432/authorization-service-db}
     hikari:
       connection-timeout: 2000 #ms
       maximum-pool-size: 5
+  mail:
+    host: ${MAIL_URL:127.0.0.1}
+    port: ${MAIL_PORT:1025}
+    username:
+    password:
+    protocol: smtp
 as:
-  realm:
-    username: "admin"
-    password: "password"
-    name: "realm"
-
+    username: "${ADMIN_USERNAME:admin}"
+    password: "${ADMIN_PASSWORD:password}"
+    baseurl: ${BASE_URL:http://localhost:8080}/as
+payment-service:
+  baseurl: ${PAYMENT_SERVICE_URL:http://localhost:9090}/payment

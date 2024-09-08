@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,7 +20,7 @@ public class RegisteredClientDto {
     private ClientAuthenticationMethod clientAuthenticationMethod;
 
     @NotEmpty(message = "Authorization Grant Type is required")
-    private AuthorizationGrantType authorizationGrantType;
+    private List<AuthorizationGrantType> authorizationGrantType;
 
     private String redirectUri;
 

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 
-@Table(name = "user", schema = "authorization_service")
+@Table(name = "user", schema = "public")
 public record User(
         @Id
         UUID id,
@@ -38,5 +38,9 @@ public record User(
                           boolean isCredentialsNonExpired,
                           boolean isEnabled) {
         return new User(id, username, password, isAccountNonExpired, isAccountNonLocked, isCredentialsNonExpired, isEnabled, null, null, null,null,0);
+    }
+
+    public static User of(User user) {
+        return new User(user.id(), user.username(), user.password(), user.isAccountNonExpired(), user.isAccountNonLocked(), user.isCredentialsNonExpired(), user.isEnabled(), user.createdDate, user.createdBy, null,null,0);
     }
 }

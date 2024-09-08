@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Table(name = "user_group", schema = "authorization_service")
+@Table(name = "user_group")
 public record UserGroup(
         @Id
         UUID id,

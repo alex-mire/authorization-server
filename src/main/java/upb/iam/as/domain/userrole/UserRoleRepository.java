@@ -14,8 +14,15 @@ public interface UserRoleRepository extends CrudRepository<UserRole, UUID> {
 
     @Modifying
     @Query("""
-           delete from authorization_service.user_role
+           delete from user_role
            where user_id = :id and role_id = :roleId
            """)
     void deleteByUserIdAndRoleId(UUID id, UUID roleId);
+
+    @Modifying
+    @Query("""
+           delete from user_role
+           where user_id = :id
+           """)
+    void deleteByUserId(UUID id);
 }

@@ -29,8 +29,10 @@
                 <th scope="col">Principal Name</th>
                 <th scope="col">Grant Type</th>
                 <th scope="col">Authorized Scopes</th>
-                <th scope="col">Tokens</th>
-                <th scope="col">Attributes</th>
+                <th scope="col">Token</th>
+                <th scope="col">Token Issued At</th>
+                <th scope="col">Token Expires At</th>
+                <th scope="col">Refresh Token</th>
             </tr>
             </thead>
             <tbody>
@@ -39,20 +41,12 @@
                 <td th:text="${authorization.id}">ID</td>
                 <td th:text="${authorization.registeredClientId}">Client ID</td>
                 <td th:text="${authorization.principalName}">Principal Name</td>
-                <td th:text="${authorization.authorizationGrantType.value}">Grant Type</td>
-                <td>
-                    <ul>
-                        <li th:each="scope : ${authorization.authorizedScopes}" th:text="${scope}"></li>
-                    </ul>
-                </td>
-                <td th:text="${authorization.getAccessToken().getToken().getTokenValue()}">
-                    Token
-                </td>
-                <td>
-                    <ul>
-                        <li th:each="attr : ${authorization.attributes}" th:text="${attr.value}"></li>
-                    </ul>
-                </td>
+                <td th:text="${authorization.authorizationGrantType}">Grant Type</td>
+                <td th:text="${authorization.authorizedScopes}">Authorized Scopes</td>
+                <td th:text="${authorization.accessTokenValue}">Token</td>
+                <td th:text="${authorization.accessTokenIssuedAt}">Token Issued At</td>
+                <td th:text="${authorization.accessTokenExpiresAt}">Token Expires At</td>
+                <td th:text="${authorization.refreshTokenValue}">Refresh token</td>
             </tr>
             </tbody>
         </table>

@@ -11,6 +11,7 @@ import java.util.UUID;
 public class UserDetailsProjection {
     private UUID id;
     private String username;
+    private String email;
     private String password;
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;

@@ -20,9 +20,9 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
            g.name,
            ug.created_date as added_at,
            ug.created_by as added_by
-           from authorization_service.group g
-           join authorization_service.user_group ug on ug.group_id = g.id
-           join authorization_service.user u on ug.user_id = u.id
+           from public.group g
+           join user_group ug on ug.group_id = g.id
+           join public.user u on ug.user_id = u.id
            where u.id = :id
            """)
     List<UserGroupDto> findAllByUserId(UUID id);
@@ -30,7 +30,7 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
     @Query("""
            select g.id,
                   g.name
-           from authorization_service.group g
+           from public.group g
            """)
     List<GroupMinimalDto> findAllGroupMinimalDtos();
 
@@ -41,7 +41,7 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
                   g.created_by,
                   g.last_modified_date,
                   g.last_modified_by
-           from authorization_service.group g
+           from public.group g
            """)
     List<GroupDto> findAllGroupDtos();
 
@@ -52,14 +52,14 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
                   g.created_by,
                   g.last_modified_date,
                   g.last_modified_by
-           from authorization_service.group g
+           from public.group g
            where g.id = :id
            """)
     Optional<GroupProjectionDto> findGroupProjectionById(UUID id);
 
     @Query("""
            select g.id
-           from authorization_service.group g
+           from public.group g
            where g.id in (:groupIds)
            """)
     List<UUID> findAllByGroupIds(List<UUID> groupIds);
@@ -68,7 +68,7 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
 
     @Modifying
     @Query("""
-           update authorization_service.group
+           update public.group
            set name = :name
            where id = :id
            """)
@@ -76,7 +76,7 @@ public interface GroupRepository extends CrudRepository<Group, UUID> {
 
     @Modifying
     @Query("""
-           delete from authorization_service.group
+           delete from public.group
            where id = :id
            """)
     void deleteGroupById(UUID id);
